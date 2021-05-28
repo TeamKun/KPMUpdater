@@ -2,10 +2,10 @@ package net.kunmc.lab.kpmupdater;
 
 import net.kunmc.lab.kpmupdater.commands.UpdateCommand;
 import net.kunmc.lab.kpmupdater.plugin.Updater;
+import net.kunmc.lab.kpmupdater.utils.Say2Functional;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.plugin.java.JavaPlugin;
-import tokyo.peya.lib.bukkit.Say2Functional;
 
 import java.util.logging.Logger;
 

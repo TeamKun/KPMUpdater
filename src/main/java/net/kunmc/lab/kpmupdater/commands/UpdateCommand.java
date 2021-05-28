@@ -2,13 +2,13 @@ package net.kunmc.lab.kpmupdater.commands;
 
 import net.kunmc.lab.kpmupdater.KPMUpdater;
 import net.kunmc.lab.kpmupdater.plugin.Updater;
+import net.kunmc.lab.kpmupdater.utils.Say2Functional;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import tokyo.peya.lib.bukkit.Say2Functional;
 
 import java.util.UUID;
 
