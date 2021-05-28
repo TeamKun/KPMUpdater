@@ -3,6 +3,7 @@ package net.kunmc.lab.kpmupdater;
 import net.kunmc.lab.kpmupdater.commands.UpdateCommand;
 import net.kunmc.lab.kpmupdater.plugin.Updater;
 import net.kunmc.lab.kpmupdater.utils.Say2Functional;
+import org.apache.commons.lang.Validate;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -22,6 +23,7 @@ public final class KPMUpdater extends JavaPlugin
         plugin = this;
         logger = getLogger();
         sf = new Say2Functional(this);
+        vault = new TokenVault();
         getCommand("kpmupdate").setExecutor(new UpdateCommand());
 
         if (!Bukkit.getPluginManager().isPluginEnabled("TeamKunPluginManager"))
