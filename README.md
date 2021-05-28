@@ -5,3 +5,7 @@
 + /kpmupdate 
   KPMをアップデートします。
   権限：kpm.use
+
+## 対応バージョン
++ <= Bukkit/Spigot 1.13
++ <= KPM 2.2.2
