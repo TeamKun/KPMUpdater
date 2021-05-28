@@ -1,12 +1,14 @@
 package net.kunmc.lab.kpmupdater.plugin;
 
 import net.kunmc.lab.kpmupdater.GithubUrlBuilder;
+import net.kunmc.lab.kpmupdater.utils.URLUtils;
 import net.kunmc.lab.kpmupdater.utils.rdmaker.DevBukkit;
 import net.kunmc.lab.kpmupdater.utils.rdmaker.Spigotmc;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.validator.routines.UrlValidator;
 import org.bukkit.Bukkit;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.List;
 
 public class PluginResolver
@@ -25,7 +27,7 @@ public class PluginResolver
         String s = q[0];
         String ver = q.length > 1 ? q[1]: null;
 
-        if (UrlValidator.getInstance().isValid(query))
+        if (isValid(query))
         {
             if (DevBukkit.isMatch(query))
                 return DevBukkit.toDownloadUrl(query);
@@ -60,4 +62,17 @@ public class PluginResolver
         return "ERROR " + query + "が見つかりませんでした。";
     }
 
+
+    public static boolean isValid(String url)
+    {
+        try
+        {
+            new URL(url);
+            return true;
+        }
+        catch (MalformedURLException ignored)
+        {
+            return false;
+        }
+    }
 }
