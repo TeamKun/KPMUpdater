@@ -5,6 +5,7 @@ api-version: 1.13
 authors: [Peyang]
 description: Update KPM
 website: https://kunmc.net/
+depend: [TeamKunPluginManager]
 
 commands:
   kpmupdate:
