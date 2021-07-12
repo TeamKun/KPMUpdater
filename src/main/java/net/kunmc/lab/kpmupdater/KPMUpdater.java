@@ -3,7 +3,6 @@ package net.kunmc.lab.kpmupdater;
 import net.kunmc.lab.kpmupdater.commands.UpdateCommand;
 import net.kunmc.lab.kpmupdater.plugin.Updater;
 import net.kunmc.lab.kpmupdater.utils.Say2Functional;
-import org.apache.commons.lang.Validate;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -31,6 +30,17 @@ public final class KPMUpdater extends JavaPlugin
             logger.severe("TeamKunPluginManager がインストールされていません。このプラグインを削除してください。");
             return;
         }
+
+        Bukkit.getOnlinePlayers().forEach(player -> {
+            if (!player.hasPermission("kpm.use"))
+                return;
+            KPMUpdater.sf.add(player.getUniqueId(), new Say2Functional.FunctionalEntry(String::equalsIgnoreCase, s -> {
+                if (s.equalsIgnoreCase("y"))
+                    Updater.doUpdate(Bukkit.getConsoleSender());
+                else
+                    player.sendMessage(ChatColor.RED + "アップデートをキャンセルしました。/kpmupdate から手動でアップデートすることができます。");
+            }, "y", "n"));
+        });
 
         logger.info("アップデートを実行しますか？");
         KPMUpdater.sf.add(null, new Say2Functional.FunctionalEntry(String::equalsIgnoreCase, s -> {
