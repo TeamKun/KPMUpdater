@@ -34,7 +34,7 @@ public final class KPMUpdater extends JavaPlugin
         Bukkit.getOnlinePlayers().forEach(player -> {
             if (!player.hasPermission("kpm.use"))
                 return;
-            player.sendMessage(ChatColor.GREEN + "KPMUpdaterがインストールされました。チャットで y と入力するとアップデートが実行されます。");
+            player.sendMessage(ChatColor.GREEN + "KPMUpdaterがインストールされました。インストールを続行しますか？ Y/n>");
             KPMUpdater.sf.add(player.getUniqueId(), new Say2Functional.FunctionalEntry(String::equalsIgnoreCase, s -> {
                 if (s.equalsIgnoreCase("y"))
                     Updater.doUpdate(Bukkit.getConsoleSender());
