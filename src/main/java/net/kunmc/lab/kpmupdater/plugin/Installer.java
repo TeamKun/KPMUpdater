@@ -2,6 +2,7 @@ package net.kunmc.lab.kpmupdater.plugin;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import net.kunmc.lab.kpmupdater.GithubUrlBuilder;
 import net.kunmc.lab.kpmupdater.KPMUpdater;
 import net.kunmc.lab.kpmupdater.utils.InstallResult;
 import net.kunmc.lab.kpmupdater.utils.PluginUtil;
@@ -16,8 +17,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicReference;
 
 @SuppressWarnings("unused")
 public class Installer
@@ -64,33 +63,23 @@ public class Installer
         }
     }
 
-    /**
-     * URlからぶちこむ！
-     *
-     * @param url                   URL!!!
-     * @param ignoreInstall         インストールを除外するかどうか
-     * @param withoutResolveDepends 依存関係解決をしない
-     * @return ファイル名, プラグイン名
-     */
-    public static InstallResult install(String url, boolean ignoreInstall, boolean withoutResolveDepends, boolean withoutRemove)
+    public static InstallResult install(String repoName, boolean withoutRemove)
     {
-
-        AtomicReference<String> atomicURL = new AtomicReference<>(url);
         ArrayList<InstallResult> added = new ArrayList<>();
 
         int add = 0;
         int remove = 0;
         int modify = 0;
 
-        atomicURL.set(PluginResolver.asUrl(url));
+        String directLink = GithubUrlBuilder.fetchLatestDirectLink(repoName);
 
-        if (atomicURL.get().startsWith("ERROR "))
+        if (directLink.startsWith("ERROR "))
             return new InstallResult(add, remove, modify, false);
 
         long startTime = System.currentTimeMillis();
 
-        Pair<Boolean, String> downloadResult = URLUtils.downloadFile(atomicURL.get());
-        if (downloadResult.getValue().equals(""))
+        Pair<Boolean, String> downloadResult = URLUtils.downloadFile(directLink);
+        if (downloadResult.getValue().isEmpty())
             return new InstallResult(add, remove, modify, false);
 
         add++;
@@ -110,91 +99,48 @@ public class Installer
         }
         catch (IOException | InvalidDescriptionException e)
         {
-
             if (!withoutRemove)
                 return new InstallResult(add, remove, modify, false);
 
             return new InstallResult(add, remove, modify, false);
         }
 
-        Plugin plugin = Bukkit.getPluginManager().getPlugin(description.getName());
-
-        added.add(new InstallResult(downloadResult.getValue(), description.getName(), add, remove, modify, true));
-
-        boolean dependFirst = true;
-        ArrayList<String> failedResolve = new ArrayList<>();
-        for (String dependency : description.getDepend())
+        String fileName = downloadResult.getValue();
+        try
         {
-            if (withoutResolveDepends)
-                break;
-            if (Bukkit.getPluginManager().isPluginEnabled(dependency))
-                continue;
-            if (dependFirst)
+            if (PluginUtil.isPluginLoaded(description.getName()))
             {
+                Plugin plugin = Bukkit.getPluginManager().getPlugin(description.getName());
 
-                startTime = System.currentTimeMillis();
-                dependFirst = false;
-            }
+                assert plugin != null;
 
-            String dependUrl = PluginResolver.asUrl(dependency);
-            if (dependUrl.startsWith("ERROR "))
-            {
-                failedResolve.add(dependency);
-                continue;
-            }
+                if (!withoutRemove)
+                    delete(new File("plugins/" + fileName));
 
-            Installer.install(dependUrl, true, false, true);
+                PluginUtil.unload(plugin);
 
-        }
-
-
-        if (failedResolve.size() > 0)
-            return new InstallResult(downloadResult.getValue(), description.getName(), add, remove, modify, true);
-
-        AtomicBoolean success = new AtomicBoolean(true);
-
-        if (!ignoreInstall)
-        {
-            ArrayList<InstallResult> loadOrder = PluginUtil.mathLoadOrder(added);
-            for (InstallResult f : loadOrder)
-            {
-                try
+                new BukkitRunnable()
                 {
-                    if (PluginUtil.isPluginLoaded(description.getName()))
+
+                    @Override
+                    public void run()
                     {
-
-
-                        if (!withoutRemove)
-                            delete(new File("plugins/" + f.fileName));
-
-                        PluginUtil.unload(plugin);
-
-                        new BukkitRunnable()
-                        {
-
-                            @Override
-                            public void run()
-                            {
-                                File file = PluginUtil.getFile(plugin);
-                                if (!withoutRemove && file != null)
-                                    file.delete();
-                            }
-                        }.runTaskLaterAsynchronously(KPMUpdater.plugin, 20L);
+                        File file = PluginUtil.getFile(plugin);
+                        if (!withoutRemove && file != null)
+                            file.delete();
                     }
-
-                    PluginUtil.load(f.fileName.substring(0, f.fileName.length() - 4));
-                }
-                catch (Exception e)
-                {
-                    if (!withoutRemove)
-                        delete(new File("plugins/" + f.fileName));
-                    e.printStackTrace();
-                    success.set(false);
-                }
+                }.runTaskLaterAsynchronously(KPMUpdater.plugin, 20L);
             }
+
+            PluginUtil.load(fileName.substring(0, fileName.length() - 4));
         }
-        if (!success.get())
-            return new InstallResult(downloadResult.getValue(), description.getName(), add, remove, modify, false);
+        catch (Exception e)
+        {
+            if (!withoutRemove)
+                delete(new File("plugins/" + fileName));
+            e.printStackTrace();
+            return new InstallResult(add, remove, modify, false);
+        }
 
         return new InstallResult(downloadResult.getValue(), description.getName(), add, remove, modify, true);
     }

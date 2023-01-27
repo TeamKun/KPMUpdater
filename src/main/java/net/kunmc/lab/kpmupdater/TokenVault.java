@@ -13,24 +13,24 @@ public class TokenVault
 
     public TokenVault()
     {
-        token = "";
+        this.token = "";
 
         if (!new File(new File("").getAbsolutePath(), "kpm.vault").exists())
             return;
         try
         {
-            token = FileUtils.readFileToString(new File(new File("").getAbsolutePath(), "kpm.vault"), StandardCharsets.UTF_8);
-            success = true;
+            this.token = FileUtils.readFileToString(new File(new File("").getAbsolutePath(), "kpm.vault"), StandardCharsets.UTF_8);
+            this.success = true;
         }
         catch (IOException e)
         {
             System.out.println("TOKENの読み込みに失敗しました。");
-            success = false;
+            this.success = false;
         }
     }
 
     public String getToken()
     {
-        return token;
+        return this.token;
     }
 }

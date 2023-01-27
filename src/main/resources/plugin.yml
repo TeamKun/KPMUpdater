@@ -6,7 +6,3 @@ authors: [Peyang]
 description: Update KPM
 website: https://kunmc.net/
 depend: [TeamKunPluginManager]
-
-commands:
-  kpmupdate:
-    description: KPMをアップデートします。

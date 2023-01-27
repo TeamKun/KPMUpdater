@@ -11,7 +11,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 public class Updater
 {
     private static boolean processing;
-    public static String processor = null;
+    public static String processor;
 
     public static void doUpdate(CommandSender sender)
     {
@@ -43,7 +43,7 @@ public class Updater
             return;
         }
 
-        InstallResult result = Installer.install("TeamKun/TeamKunPluginManager", false, false, false);
+        InstallResult result = Installer.install("TeamKun/TeamKunPluginManager", false);
 
         if (!result.success)
         {
